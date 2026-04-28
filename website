@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meridian Research Laboratories</title>
+    <!--
+        ██████╗ ██╗      █████╗ ███████╗███████╗██╗███████╗██╗███████╗██████╗
+       ██╔════╝ ██║     ██╔══██╗██╔════╝██╔════╝██║██╔════╝██║██╔════╝██╔══██╗
+       ██║  ███╗██║     ███████║█████╗  ███████╗██║█████╗  ██║█████╗  ██████╔╝
+       ██║   ██║██║     ██╔══██║██╔══╝  ╚════██║██║██╔══╝  ██║██╔══╝  ██╔══██╗
+       ╚██████╔╝███████╗██║  ██║███████╗███████║██║██║     ██║███████╗██║  ██║
+        ╚═════╝ ╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝╚═╝     ╚═╝╚══════╝╚═╝  ╚═╝
+
+        IF YOU CAN READ THIS, YOU'RE ALREADY CLOSER THAN YOU THINK.
+        LOOK FOR WHAT ISN'T THERE.
+        THE FIRST NUMBER YOU NEED IS: 491
+        REMEMBER THE FORMAT: XXX-XXX-XXX
+    -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #080c12;
+            --fg: #b8c4d4;
+            --muted: #3e4a5c;
+            --accent: #00b894;
+            --card: #0d1219;
+            --border: #1a2332;
+            --corruption: 0;
+            --accent-r: 0;
+            --accent-g: 184;
+            --accent-b: 148;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        ::selection { background: rgba(var(--accent-r),var(--accent-g),var(--accent-b),0.3); color: #fff; }
+
+        /* ── Background atmosphere ── */
+        .bg-blob {
+            position: fixed; border-radius: 50%; pointer-events: none;
+            filter: blur(100px); opacity: 0.06; z-index: 0;
+        }
+        .bg-blob-1 { width: 600px; height: 600px; top: -200px; left: -100px; background: var(--accent); animation: bfloat 25s ease-in-out infinite; }
+        .bg-blob-2 { width: 500px; height: 500px; bottom: -150px; right: -100px; background: var(--accent); animation: bfloat 30s ease-in-out infinite reverse; }
+        .bg-blob-3 { width: 300px; height: 300px; top: 50%; left: 50%; transform: translate(-50%,-50%); background: var(--accent); animation: bfloat 20s ease-in-out infinite 5s; }
+        @keyframes bfloat {
+            0%,100% { transform: translate(0,0) scale(1); }
+            33% { transform: translate(30px,-40px) scale(1.1); }
+            66% { transform: translate(-20px,30px) scale(0.9); }
+        }
+        .bg-grid {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.03;
+            background-image: linear-gradient(var(--fg) 1px, transparent 1px), linear-gradient(90deg, var(--fg) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        /* ── Scanlines ── */
+        .scanlines {
+            position: fixed; inset: 0; z-index: 1000; pointer-events: none; opacity: 0.3;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px);
+            transition: opacity 0.5s;
+        }
+
+        /* ── Corruption overlay ── */
+        #corruption-overlay {
+            position: fixed; inset: 0; z-index: 900; pointer-events: none; opacity: 0;
+            background: radial-gradient(ellipse at center, transparent 40%, rgba(255,0,0,0.15) 100%);
+            transition: opacity 1s;
+        }
+
+        /* ── Initial flash ── */
+        #initial-flash {
+            position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+            background: #ff0000; opacity: 0; transition: opacity 0.15s;
+        }
+
+        /* ── Corporate content ── */
+        #corporate-content { position: relative; z-index: 10; }
+
+        /* ── Header ── */
+        header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1.25rem 2rem; border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(10px); background: rgba(8,12,18,0.8);
+            position: sticky; top: 0; z-index: 50;
+        }
+        .logo {
+            font-size: 1.3rem; font-weight: 700; letter-spacing: 0.15em;
+            color: var(--accent); cursor: pointer; user-select: none;
+            transition: color 0.5s;
+        }
+        .logo:hover { opacity: 0.8; }
+        nav { display: flex; gap: 1.75rem; }
+        nav a {
+            color: var(--muted); text-decoration: none; font-size: 0.85rem;
+            letter-spacing: 0.05em; transition: color 0.3s; cursor: pointer;
+        }
+        nav a:hover { color: var(--fg); }
+        nav a.forbidden { cursor: not-allowed; }
+        nav a.forbidden:hover { color: var(--muted); }
+
+        /* ── Hero ── */
+        .hero {
+            min-height: 70vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center;
+            padding: 4rem 2rem; position: relative;
+        }
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700;
+            letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 1rem;
+        }
+        .hero h1 span { color: var(--accent); transition: color 0.5s; }
+        .hero p {
+            font-size: 1.1rem; color: var(--muted); max-width: 500px;
+            line-height: 1.6; margin-bottom: 2.5rem;
+        }
+        .hero-meta {
+            display: flex; gap: 2rem; font-size: 0.8rem; color: var(--muted);
+            letter-spacing: 0.05em; margin-top: 1rem;
+        }
+        .hero-meta span { opacity: 0.6; }
+        .hero-btn {
+            padding: 0.75rem 2rem; background: transparent;
+            border: 1px solid var(--accent); color: var(--accent);
+            font-family: inherit; font-size: 0.85rem; letter-spacing: 0.1em;
+            cursor: pointer; transition: all 0.3s; text-transform: uppercase;
+        }
+        .hero-btn:hover { background: var(--accent); color: var(--bg); }
+
+        /* ── Sections ── */
+        .section {
+            max-width: 900px; margin: 0 auto; padding: 4rem 2rem;
+            border-top: 1px solid var(--border);
+        }
+        .section-label {
+            font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+            color: var(--accent); margin-bottom: 1.5rem; transition: color 0.5s;
+        }
+        .section h2 {
+            font-size: 1.8rem; font-weight: 600; margin-bottom: 1.25rem;
+            letter-spacing: -0.01em;
+        }
+        .section p {
+            color: var(--muted); line-height: 1.8; margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        /* ── Invisible text (revealed on selection or high corruption) ── */
+        .invisible-text {
+            color: transparent; font-size: 0.95rem; line-height: 1.8;
+            display: block; margin-bottom: 1rem; transition: color 2s;
+        }
+        .invisible-text::selection { color: #ff2244; background: rgba(255,34,68,0.15); }
+
+        /* ── Stats row ── */
+        .stats { display: flex; gap: 3rem; margin-top: 2rem; flex-wrap: wrap; }
+        .stat-label { font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem; }
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace; font-size: 1.5rem;
+            font-weight: 700; color: var(--fg); transition: color 0.2s;
+        }
+
+        /* ── Project cards ── */
+        .projects-grid { display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem; }
+        .project-card {
+            background: var(--card); border: 1px solid var(--border);
+            padding: 1.5rem; transition: all 0.3s; cursor: default;
+            position: relative; overflow: hidden;
+        }
+        .project-card::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+            width: 3px; background: var(--accent); transition: background 0.5s;
+        }
+        .project-card:hover { border-color: rgba(var(--accent-r),var(--accent-g),var(--accent-b),0.3); transform: translateX(4px); }
+        .project-card .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+        .project-card h3 { font-size: 1rem; font-weight: 600; }
+        .project-card .card-status {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+            letter-spacing: 0.1em; padding: 0.2rem 0.6rem; border-radius: 2px;
+            background: rgba(var(--accent-r),var(--accent-g),var(--accent-b),0.1);
+            color: var(--accent); transition: all 0.5s;
+        }
+        .project-card .card-status.classified { background: rgba(255,34,68,0.1); color: #ff4466; }
+        .project-card .card-status.suspended { background: rgba(255,170,0,0.1); color: #ffaa00; }
+        .project-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+        .project-card.chimera { border-color: rgba(255,34,68,0.15); }
+        .project-card.chimera::before { background: #ff2244; }
+
+        /* ── Footer ── */
+        footer {
+            max-width: 900px; margin: 0 auto; padding: 2rem;
+            border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 1rem;
+        }
+        footer p { font-size: 0.75rem; color: var(--muted); }
+        .footer-signal {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+            color: var(--muted); letter-spacing: 0.05em; cursor: default;
+        }
+
+        /* ── Signal dot ── */
+        #signal-dot {
+            position: fixed; top: 1.5rem; right: 1.5rem; z-index: 800;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--accent); opacity: 0; pointer-events: none;
+            transition: opacity 0.5s, background 0.5s;
+        }
+        #signal-dot.visible {
+            opacity: 1; pointer-events: auto; cursor: pointer;
+            animation: dot-pulse 2s ease-in-out infinite;
+        }
+        @keyframes dot-pulse {
+            0%,100% { box-shadow: 0 0 4px var(--accent); transform: scale(1); }
+            50% { box-shadow: 0 0 12px var(--accent); transform: scale(1.3); }
+        }
+
+        /* ── Toast ── */
+        #toast-container {
+            position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+            z-index: 950; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+        }
+        .toast {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+            padding: 0.6rem 1.2rem; border-radius: 4px;
+            background: var(--card); border: 1px solid var(--border);
+            color: var(--fg); opacity: 0; transform: translateY(10px);
+            transition: all 0.3s; white-space: nowrap;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast-warning { border-color: rgba(255,170,0,0.4); color: #ffaa00; }
+        .toast-error { border-color: rgba(255,34,68,0.4); color: #ff4466; }
+        .toast-success { border-color: rgba(0,184,148,0.4); color: var(--accent); }
+
+        /* ── Terminal ── */
+        #terminal {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 850;
+            height: 0; background: rgba(6,9,14,0.97);
+            border-top: 1px solid var(--border);
+            transition: height 0.4s cubic-bezier(0.4,0,0.2,1);
+            display: flex; flex-direction: column;
+            backdrop-filter: blur(20px);
+        }
+        #terminal.open { height: 45vh; min-height: 280px; }
+        .terminal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.5rem 1rem; border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .terminal-header span {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+            letter-spacing: 0.1em; color: var(--muted);
+        }
+        .terminal-close {
+            background: none; border: none; color: var(--muted); cursor: pointer;
+            font-size: 1rem; padding: 0.2rem; transition: color 0.2s;
+        }
+        .terminal-close:hover { color: var(--fg); }
+        #terminal-output {
+            flex: 1; overflow-y: auto; padding: 0.75rem 1rem;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+            line-height: 1.7;
+        }
+        .terminal-line { margin-bottom: 0.15rem; }
+        .terminal-input { color: var(--accent); }
+        .terminal-system { color: var(--muted); font-style: italic; }
+        .terminal-output { color: var(--fg); }
+        .terminal-warning { color: #ffaa00; }
+        .terminal-error { color: #ff4466; }
+        .terminal-success { color: #00ff88; }
+        .terminal-prompt {
+            display: flex; align-items: center; padding: 0.5rem 1rem;
+            border-top: 1px solid var(--border); flex-shrink: 0;
+        }
+        .terminal-prompt-label {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+            color: var(--accent); margin-right: 0.5rem; transition: color 0.5s;
+        }
+        #terminal-input {
+            flex: 1; background: none; border: none; outline: none;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+            color: var(--fg); caret-color: var(--accent);
+        }
+
+        /* ── Glitch effects ── */
+        .glitch-flash { animation: gflash 0.15s ease-out; }
+        @keyframes gflash {
+            0% { filter: brightness(3) saturate(0); transform: translateX(-2px); }
+            100% { filter: none; transform: none; }
+        }
+        .glitch-active { animation: gactive 0.5s ease-out; }
+        @keyframes gactive {
+            0% { filter: hue-rotate(90deg) brightness(1.5); transform: translate(-4px, 2px) skewX(-2deg); }
+            15% { filter: hue-rotate(-90deg) brightness(0.5); transform: translate(4px, -1px) skewX(2deg); }
+            30% { filter: hue-rotate(45deg) brightness(2); transform: translate(-2px, 1px); }
+            50% { filter: hue-rotate(0) brightness(1.2); transform: translate(1px, -1px); }
+            100% { filter: none; transform: none; }
+        }
+        .glitch-text {
+            position: relative; display: inline-block;
+        }
+        .glitch-text::before, .glitch-text::after {
+            content: attr(data-text); position: absolute; left: 0; top: 0;
+            width: 100%; height: 100%; opacity: 0;
+        }
+        .glitch-text::before { color: #ff0040; }
+        .glitch-text::after { color: #00ff88; }
+        body.corruption-2 .glitch-text::before,
+        body.corruption-2 .glitch-text::after {
+            animation: gtext 4s ease-in-out infinite;
+        }
+        @keyframes gtext {
+            0%,92%,100% { opacity: 0; transform: none; }
+            93% { opacity: 0.8; transform: translate(-3px, 1px) skewX(-5deg); clip-path: inset(20% 0 60% 0); }
+            95% { opacity: 0; }
+            96% { opacity: 0.6; transform: translate(3px, -1px) skewX(5deg); clip-path: inset(60% 0 10% 0); }
+            98% { opacity: 0; }
+        }
+
+        /* ── Breach content ── */
+        #breach-content {
+            display: none; position: fixed; inset: 0; z-index: 600;
+            background: var(--bg); flex-direction: column;
+        }
+        .breach-header {
+            padding: 1rem 1.5rem; border-bottom: 1px solid rgba(255,34,68,0.3);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .breach-header span {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+            color: #ff4466; letter-spacing: 0.15em;
+            animation: breach-pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes breach-pulse {
+            0%,100% { opacity: 1; } 50% { opacity: 0.3; }
+        }
+        #message-feed {
+            flex: 1; overflow-y: auto; padding: 2rem;
+            display: flex; flex-direction: column; gap: 1.25rem;
+            max-width: 650px; margin: 0 auto; width: 100%;
+        }
+        .message-bubble {
+            padding: 1rem 1.25rem; border-radius: 6px; max-width: 90%;
+            animation: msg-in 0.3s ease-out;
+        }
+        @keyframes msg-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+        .message-system {
+            background: rgba(255,34,68,0.08); border: 1px solid rgba(255,34,68,0.2);
+            align-self: center; text-align: center;
+        }
+        .message-system .message-text { color: #ff4466; font-size: 0.8rem; letter-spacing: 0.1em; }
+        .message-incoming {
+            background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+            align-self: flex-start;
+        }
+        .message-incoming .message-sender {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+            color: var(--accent); letter-spacing: 0.1em; margin-bottom: 0.4rem;
+        }
+        .message-incoming .message-text { color: var(--fg); font-size: 0.9rem; line-height: 1.6; }
+        .message-lost {
+            background: rgba(255,34,68,0.05); border: 1px solid rgba(255,34,68,0.15);
+            align-self: center; text-align: center;
+        }
+        .message-lost .message-text {
+            color: #ff4466; font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem; letter-spacing: 0.15em;
+        }
+        .message-final {
+            align-self: center; text-align: center; padding: 0;
+        }
+        .message-final .message-text {
+            font-size: 1.4rem; font-weight: 300; color: var(--fg);
+            letter-spacing: 0.05em;
+        }
+
+        /* ── Final screen ── */
+        #final-screen {
+            display: none; position: fixed; inset: 0; z-index: 700;
+            background: #000; flex-direction: column;
+            align-items: center; justify-content: center;
+        }
+        #final-text {
+            font-family: 'JetBrains Mono', monospace; font-size: clamp(1rem, 2.5vw, 1.5rem);
+            color: rgba(184,196,212,0); letter-spacing: 0.1em;
+            transition: color 3s;
+        }
+        #final-text.visible { color: rgba(184,196,212,0.7); }
+        #final-cursor {
+            display: inline-block; width: 8px; height: 1.2em;
+            background: var(--accent); margin-left: 4px;
+            animation: blink 1s step-end infinite; vertical-align: text-bottom;
+        }
+        #final-cursor.stopped { animation: none; opacity: 0; transition: opacity 2s; }
+        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* ── Body classes for corruption ── */
+        body.corruption-2 .invisible-text { color: rgba(255,34,68,0.15); }
+        body.corruption-3 .invisible-text { color: rgba(255,34,68,0.3); }
+        body.corruption-4 .invisible-text { color: rgba(255,34,68,0.5); }
+        body.corruption-5 .invisible-text { color: rgba(255,34,68,0.7); }
+
+        body.breached #corporate-content { display: none !important; }
+        body.breached .scanlines { opacity: 0.6; }
+
+        /* ── Screen shake ── */
+        .shake { animation: shake 0.5s ease-in-out; }
+        @keyframes shake {
+            0%,100% { transform: translate(0); }
+            10% { transform: translate(-5px, 3px); }
+            20% { transform: translate(5px, -3px); }
+            30% { transform: translate(-3px, 5px); }
+            40% { transform: translate(3px, -5px); }
+            50% { transform: translate(-5px, -3px); }
+            60% { transform: translate(5px, 3px); }
+            70% { transform: translate(-3px, -5px); }
+            80% { transform: translate(3px, 5px); }
+            90% { transform: translate(-5px, 3px); }
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            header { padding: 1rem; }
+            nav { gap: 1rem; }
+            nav a { font-size: 0.75rem; }
+            .hero { padding: 3rem 1.5rem; min-height: 60vh; }
+            .hero-meta { flex-direction: column; gap: 0.5rem; }
+            .section { padding: 3rem 1.5rem; }
+            .stats { gap: 1.5rem; }
+            footer { flex-direction: column; align-items: flex-start; }
+            #terminal.open { height: 55vh; }
+        }
+
+        /* ── Reduced motion ── */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background layers -->
+    <div class="bg-blob bg-blob-1"></div>
+    <div class="bg-blob bg-blob-2"></div>
+    <div class="bg-blob bg-blob-3"></div>
+    <div class="bg-grid"></div>
+    <div class="scanlines"></div>
+    <div id="corruption-overlay"></div>
+    <div id="initial-flash"></div>
+
+    <!-- Signal dot (hidden until Level 1) -->
+    <div id="signal-dot" aria-hidden="true"></div>
+
+    <!-- Toast container -->
+    <div id="toast-container" aria-live="polite"></div>
+
+    <!-- ═══════════════════ CORPORATE FACADE ═══════════════════ -->
+    <div id="corporate-content">
+        <header>
+            <div class="logo" id="logo" role="button" tabindex="0" aria-label="Meridian Research Laboratories">MERIDIAN</div>
+            <nav>
+                <a href="#about">About</a>
+                <a href="#research">Research</a>
+                <a id="nav-personnel" class="forbidden">Personnel</a>
+                <a id="nav-contact" class="forbidden">Contact</a>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <h1>Advancing Human <span class="glitch-text" data-text="Potential">Potential</span></h1>
+            <p>Through resonance frequency research and cognitive enhancement technologies, Meridian Laboratories pushes the boundaries of what the human mind can achieve.</p>
+            <button class="hero-btn" onclick="document.getElementById('research').scrollIntoView({behavior:'smooth'})">View Research</button>
+            <div class="hero-meta">
+                <span>Established <span class="mutable" data-original="2019" data-alt="████">2019</span></span>
+                <span>Operational since <span class="mutable" data-original="2021" data-alt="????">2021</span></span>
+                <span>Reclassified <span class="mutable" data-original="2023" data-alt="REDACTED">2023</span></span>
+            </div>
+        </section>
+
+        <section class="section" id="about">
+            <div class="section-label">About the Facility</div>
+            <h2>Resonance Research for a Better Future</h2>
+            <p>Meridian Research Laboratories was founded to explore the frontiers of resonance frequency technology and its applications in human cognitive enhancement. Our state-of-the-art facility operates under the highest standards of scientific rigor and federal compliance.</p>
+            <p>Following the Incident of March 2023, all operations were transferred to federal oversight under <span class="mutable" data-original="Project CHIMERA" data-alt="██████████████">Project CHIMERA</span>. The facility continues to operate with a reduced staff complement dedicated to containment and monitoring protocols.</p>
+            <span class="invisible-text">THEY TOLD US IT WAS SAFE. THEY LIED. DR. VOSS TRIED TO WARN THEM. SECTOR 082 IS STILL ACTIVE. IF YOU FIND THIS, DON'T TRUST THE SIGNAL. THE CODE IS IN THE LOGS.</span>
+            <p>Our research into resonance frequencies between 7.0 and 8.0 Hz has yielded unprecedented results in neural coherence metrics, with applications spanning medicine, communications, and defense.</p>
+            <div class="stats">
+                <div>
+                    <div class="stat-label">Active Personnel</div>
+                    <div class="stat-value" id="employee-count">2,847</div>
+                </div>
+                <div>
+                    <div class="stat-label">Research Papers</div>
+                    <div class="stat-value">143</div>
+                </div>
+                <div>
+                    <div class="stat-label">Facility Status</div>
+                    <div class="stat-value" id="facility-status" style="color: var(--accent); transition: color 0.5s;">OPERATIONAL</div>
+                </div>
+                <div>
+                    <div class="stat-label">Signal Integrity</div>
+                    <div class="stat-value" id="signal-integrity">97.3%</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="research">
+            <div class="section-label">Active Projects</div>
+            <h2>Research Programs</h2>
+            <div class="projects-grid">
+                <div class="project-card chimera">
+                    <div class="card-header">
+                        <h3>Project CHIMERA</h3>
+                        <span class="card-status classified">CLASSIFIED</span>
+                    </div>
+                    <p>Exploration of resonant frequencies between 7.0–8.0 Hz and their effects on neural coherence. Primary focus: establishing stable bidirectional resonance channels for cognitive enhancement applications. All data sealed under federal order.</p>
+                </div>
+                <div class="project-card">
+                    <div class="card-header">
+                        <h3>The Voss Protocol</h3>
+                        <span class="card-status suspended">SUSPENDED</span>
+                    </div>
+                    <p>Named after lead researcher Dr. Elena Voss. Designed to establish bidirectional communication through resonance channels at distances exceeding 500 meters. Protocol suspended pending review after preliminary trials yielded anomalous results.</p>
+                </div>
+                <div class="project-card">
+                    <div class="card-header">
+                        <h3>Operation Stillwater</h3>
+                        <span class="card-status">ONGOING</span>
+                    </div>
+                    <p>Long-term monitoring and containment procedures for resonance-affected zones. Sector management for Levels 1 through 5. Automated systems maintain perimeter integrity. Staff rotation occurs every 90 days. No exceptions.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; <span class="mutable" data-original="2027" data-alt="????">2027</span> Meridian Research Laboratories. All rights reserved.</p>
+            <p class="footer-signal">Signal integrity: <span id="footer-signal-pct">97.3</span>%</p>
+        </footer>
+    </div>
+
+    <!-- ═══════════════════ TERMINAL ═══════════════════ -->
+    <div id="terminal" role="dialog" aria-label="Terminal interface">
+        <div class="terminal-header">
+            <span>MERIDIAN TERMINAL v2.7.3 — CLEARANCE: <span id="clearance-level">0</span></span>
+            <button class="terminal-close" id="terminal-close-btn" aria-label="Close terminal">&times;</button>
+        </div>
+        <div id="terminal-output"></div>
+        <div class="terminal-prompt">
+            <span class="terminal-prompt-label">meridian@sys:~$</span>
+            <input type="text" id="terminal-input" autocomplete="off" spellcheck="false" aria-label="Terminal input">
+        </div>
+    </div>
+
+    <!-- ═══════════════════ BREACH INTERFACE ═══════════════════ -->
+    <div id="breach-content">
+        <div class="breach-header">
+            <span><i class="fas fa-circle" style="font-size:0.5rem;vertical-align:middle;margin-right:0.5rem;"></i>EXTERNAL RELAY ACTIVE</span>
+            <span style="animation:none;opacity:0.5;" id="breach-timer"></span>
+        </div>
+        <div id="message-feed"></div>
+    </div>
+
+    <!-- ═══════════════════ FINAL SCREEN ═══════════════════ -->
+    <div id="final-screen">
+        <div id="final-text">847 days. Still listening.<span id="final-cursor"></span></div>
+    </div>
+
+    <script>
+    /* ═══════════════════════════════════════
+       GAME STATE
+       ═══════════════════════════════════════ */
+    const state = {
+        corruption: 0,
+        logoClicks: 0,
+        terminalOpen: false,
+        breached: false,
+        failedAccess: 0,
+        messageIdx: 0,
+        audioCtx: null,
+        startTime: Date.now()
+    };
+
+    /* ═══════════════════════════════════════
+       AUDIO (Web Audio API)
+       ═══════════════════════════════════════ */
+    function getAudioCtx() {
+        if (!state.audioCtx) state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        return state.audioCtx;
+    }
+
+    function playTone(freq, duration, type = 'sine', vol = 0.12) {
+        try {
+            const ctx = getAudioCtx();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = type;
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(vol, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + duration);
+        } catch(e) { /* Audio not available */ }
+    }
+
+    function playMorse(text) {
+        const map = {A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..'};
+        const dot = 0.08, dash = 0.24, gap = 0.08, lGap = 0.25;
+        let t = 0;
+        for (const ch of text.toUpperCase()) {
+            const code = map[ch];
+            if (!code) continue;
+            for (const s of code) {
+                const dur = s === '.' ? dot : dash;
+                const captured = t;
+                setTimeout(() => playTone(600, dur + 0.03, 'sine', 0.1), captured * 1000);
+                t += dur + gap;
+            }
+            t += lGap;
+        }
+    }
+
+    /* ═══════════════════════════════════════
+       CORRUPTION SYSTEM
+       ═══════════════════════════════════════ */
+    function setCorruption(level) {
+        const prev = state.corruption;
+        state.corruption = Math.min(5, Math.max(prev, level));
+        if (state.corruption === prev) return;
+
+        const t = state.corruption / 5;
+        // Accent color: teal → amber → red
+        const r = Math.round(0 + 255 * t);
+        const g = Math.round(184 - 150 * t);
+        const b = Math.round(148 - 80 * t);
+        document.documentElement.style.setProperty('--accent', `rgb(${r},${g},${b})`);
+        document.documentElement.style.setProperty('--accent-r', r);
+        document.documentElement.style.setProperty('--accent-g', g);
+        document.documentElement.style.setProperty('--accent-b', b);
+
+        // Overlay
+        document.getElementById('corruption-overlay').style.opacity = state.corruption * 0.08;
+
+        // Scanline intensity
+        document.querySelector('.scanlines').style.opacity = 0.3 + state.corruption * 0.12;
+
+        // Body classes
+        document.body.classList.remove('corruption-2','corruption-3','corruption-4','corruption-5');
+        if (state.corruption >= 2) document.body.classList.add('corruption-2');
+        if (state.corruption >= 3) document.body.classList.add('corruption-3');
+        if (state.corruption >= 4) document.body.classList.add('corruption-4');
+        if (state.corruption >= 5) document.body.classList.add('corruption-5');
+
+        // Update clearance display
+        document.getElementById('clearance-level').textContent = state.corruption;
+
+        // Sound feedback
+        if (state.corruption > prev) playTone(100 + state.corruption * 50, 0.4, 'sawtooth', 0.06);
+    }
+
+    /* ═══════════════════════════════════════
+       GLITCH EFFECTS
+       ═══════════════════════════════════════ */
+    function triggerGlitch() {
+        document.body.classList.add('glitch-active');
+        playTone(80, 0.3, 'sawtooth', 0.08);
+        setTimeout(() => document.body.classList.remove('glitch-active'), 500);
+    }
+
+    function triggerShake() {
+        document.body.classList.add('shake');
+        setTimeout(() => document.body.classList.remove('shake'), 500);
+    }
+
+    /* ═══════════════════════════════════════
+       TOAST NOTIFICATIONS
+       ═══════════════════════════════════════ */
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        container.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add('show'));
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3500);
+    }
+
+    /* ═══════════════════════════════════════
+       LOGO INTERACTION
+       ═══════════════════════════════════════ */
+    const logo = document.getElementById('logo');
+    logo.addEventListener('click', onLogoClick);
+    logo.addEventListener('keydown', e => { if (e.key === 'Enter') onLogoClick(); });
+
+    function onLogoClick() {
+        state.logoClicks++;
+        if (state.logoClicks === 4) {
+            document.body.classList.add('glitch-flash');
+            setTimeout(() => document.body.classList.remove('glitch-flash'), 150);
+        }
+        if (state.logoClicks >= 5 && state.corruption === 0) {
+            setCorruption(1);
+            triggerGlitch();
+            // Reveal signal dot
+            document.getElementById('signal-dot').classList.add('visible');
+            // Console clue
+            console.log('%c[SIGNAL INTERCEPTED] Fragment detected: 733', 'color: #00ff88; font-family: monospace; font-size: 14px;');
+            console.log('%cWarning: Unauthorized monitoring detected. Session flagged.', 'color: #ff4444; font-family: monospace; font-size: 12px;');
+            // Toast
+            setTimeout(() => showToast('Something changed.', 'warning'), 600);
+        }
+    }
+
+    /* ═══════════════════════════════════════
+       SIGNAL DOT → TERMINAL
+       ═══════════════════════════════════════ */
+    document.getElementById('signal-dot').addEventListener('click', () => {
+        openTerminal();
+        addTerminalLine('Signal source locked. Terminal interface activated.', 'system');
+        addTerminalLine('Type "help" to see available commands.', 'system');
+        addTerminalLine('', 'output');
+        // Remove dot after use
+        document.getElementById('signal-dot').style.display = 'none';
+    });
+
+    /* ═══════════════════════════════════════
+       TERMINAL SYSTEM
+       ═══════════════════════════════════════ */
+    function openTerminal() {
+        if (state.terminalOpen) return;
+        state.terminalOpen = true;
+        document.getElementById('terminal').classList.add('open');
+        setTimeout(() => document.getElementById('terminal-input').focus(), 400);
+        setCorruption(Math.max(state.corruption, 2));
+    }
+
+    function closeTerminal() {
+        if (state.breached) return;
+        if (state.corruption >= 3) {
+            addTerminalLine('SYSTEM: Terminal access cannot be revoked at current clearance level.', 'system');
+            return;
+        }
+        state.terminalOpen = false;
+        document.getElementById('terminal').classList.remove('open');
+    }
+
+    document.getElementById('terminal-close-btn').addEventListener('click', closeTerminal);
+
+    function addTerminalLine(text, type = 'output') {
+        const output = document.getElementById('terminal-output');
+        const line = document.createElement('div');
+        line.className = `terminal-line terminal-${type}`;
+        line.textContent = text;
+        output.appendChild(line);
+        output.scrollTop = output.scrollHeight;
+    }
+
+    // Terminal input handling
+    const termInput = document.getElementById('terminal-input');
+    termInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+            const cmd = termInput.value.trim();
+            termInput.value = '';
+            if (cmd) processCommand(cmd);
+        }
+    });
+
+    // Click anywhere on terminal body to focus input
+    document.getElementById('terminal').addEventListener('click', e => {
+        if (!e.target.closest('.terminal-close')) termInput.focus();
+    });
+
+    function processCommand(raw) {
+        addTerminalLine(`> ${raw}`, 'input');
+        const parts = raw.trim().toLowerCase().split(/\s+/);
+        const cmd = parts[0];
+        const args = parts.slice(1).join(' ');
+
+        // Easter eggs first
+        if (cmd === 'hello') {
+            addTerminalLine('No one has said hello to this terminal in 847 days.', 'output');
+            return;
+        }
+        if (cmd === 'voss') {
+            addTerminalLine('RECORDS FOR [VOSS, E.] SEALED UNDER FEDERAL ORDER 733-DELTA', 'error');
+            setTimeout(() => addTerminalLine('...but her signal is still broadcasting.', 'system'), 1500);
+            return;
+        }
+        if (cmd === 'meridian') {
+            triggerGlitch();
+            addTerminalLine('THAT NAME IS NO LONGER AUTHORIZED', 'error');
+            return;
+        }
+
+        switch (cmd) {
+            case 'help':
+                addTerminalLine('Available commands:', 'system');
+                addTerminalLine('  help      — Show this message', 'output');
+                addTerminalLine('  status    — Facility status report', 'output');
+                addTerminalLine('  log       — Experiment logs', 'output');
+                addTerminalLine('  personnel — Staff directory', 'output');
+                if (state.corruption >= 2) addTerminalLine('  signal    — Play intercepted signal', 'output');
+                addTerminalLine('  decode    — Base64 decoder (decode <text>)', 'output');
+                addTerminalLine('  access    — Enter access code (access <code>)', 'output');
+                addTerminalLine('  whoami    — Session information', 'output');
+                addTerminalLine('  clear     — Clear terminal', 'output');
+                addTerminalLine('  exit      — Close terminal', 'output');
+                break;
+
+            case 'status':
+                addTerminalLine('═══ FACILITY STATUS REPORT ═══', 'system');
+                addTerminalLine('Location: [REDACTED], Sublevel 3', 'output');
+                addTerminalLine('Power: 23% (backup generators)', 'output');
+                addTerminalLine('Containment: UNSTABLE', 'warning');
+                addTerminalLine('Resonance: 7.33 Hz and climbing', 'output');
+                addTerminalLine('Last external contact: 847 days ago', 'output');
+                addTerminalLine('Personnel detected: 1', 'output');
+                addTerminalLine('', 'output');
+                addTerminalLine('[NOTE: Sector 082 readings exceed baseline by 400%]', 'warning');
+                setCorruption(3);
+                break;
+
+            case 'log':
+                addTerminalLine('═══ EXPERIMENT LOGS ═══', 'system');
+                addTerminalLine('', 'output');
+                addTerminalLine('LOG-001 | 2023-01-15 | Dr. Voss', 'system');
+                addTerminalLine('Subject 4-9-1 showing unexpected resonance response at 7.0 Hz. Neural coherence metrics 300% above baseline. Recommend increased monitoring.', 'output');
+                addTerminalLine('', 'output');
+                addTerminalLine('LOG-002 | 2023-02-28 | Dr. Voss', 'system');
+                addTerminalLine('Frequency calibration adjusted to 7.33 Hz. Subject began responding to verbal prompts through the resonance channel. This was not anticipated.', 'output');
+                addTerminalLine('', 'output');
+                addTerminalLine('LOG-003 | 2023-03-07 | Dr. Voss', 'system');
+                addTerminalLine('CONTAINMENT BREACH in Sector 082. The resonance has become self-sustaining. It is no longer us generating the frequency — it is generating itself. Requesting immediate evacuation.', 'output');
+                addTerminalLine('', 'output');
+                addTerminalLine('LOG-004 | 2023-03-07 | AUTOMATED', 'system');
+                addTerminalLine('Evacuation request DENIED by federal oversight. Facility sealed per Protocol CHIMERA-7. All personnel designated Level 4 containment.', 'warning');
+                addTerminalLine('', 'output');
+                addTerminalLine('LOG-005 | 2023-03-08 | Dr. Voss', 'system');
+                addTerminalLine('Everyone is gone. The resonance took them. Not killed — taken. I can hear them in the signal. They are still alive. They are trying to speak through it. If anyone receives this: the code is scattered. Find it. Access the external relay. Do not let them silence this.', 'output');
+                break;
+
+            case 'personnel':
+                addTerminalLine('═══ PERSONNEL DIRECTORY ═══', 'system');
+                addTerminalLine('Dr. Elena Voss    | Lead Researcher   | Status: UNKNOWN', 'warning');
+                addTerminalLine('Dr. Marcus Chen   | Frequency Analyst | Status: [REDACTED]', 'output');
+                addTerminalLine('Lt. Sarah Okafor  | Security Lead     | Status: [REDACTED]', 'output');
+                addTerminalLine('Dr. James Park    | Neural Engineer   | Status: [REDACTED]', 'output');
+                addTerminalLine('...', 'output');
+                addTerminalLine('Remaining 2,843 records sealed under Federal Order 733-DELTA', 'output');
+                break;
+
+            case 'signal':
+                if (state.corruption < 2) {
+                    addTerminalLine('Error: Signal monitoring requires clearance level 2.', 'error');
+                    break;
+                }
+                addTerminalLine('Playing intercepted signal...', 'system');
+                playMorse('BREACH');
+                addTerminalLine('[Signal playback complete]', 'output');
+                addTerminalLine('The signal appears to be Morse code.', 'system');
+                break;
+
+            case 'breach':
+                addTerminalLine('...', 'output');
+                setTimeout(() => {
+                    addTerminalLine('You should not know that word.', 'warning');
+                    triggerGlitch();
+                }, 1200);
+                break;
+
+            case 'decode':
+                if (!args) { addTerminalLine('Usage: decode <base64_text>', 'error'); break; }
+                try {
+                    addTerminalLine(atob(args), 'output');
+                } catch(e) {
+                    addTerminalLine('Error: Invalid Base64 input.', 'error');
+                }
+                break;
+
+            case 'access':
+                if (!args) { addTerminalLine('Usage: access <code>', 'error'); break; }
+                if (args === '491-733-082') {
+                    initiateBreach();
+                } else {
+                    state.failedAccess++;
+                    if (state.failedAccess >= 3) {
+                        addTerminalLine('TOO MANY FAILED ATTEMPTS. SESSION FLAGGED.', 'error');
+                        triggerGlitch();
+                        setTimeout(() => addTerminalLine('...but you are still here. Keep trying.', 'system'), 2500);
+                    } else {
+                        addTerminalLine(`ACCESS DENIED. Incorrect code. Attempt ${state.failedAccess}/3 logged.`, 'error');
+                    }
+                }
+                break;
+
+            case 'whoami':
+                addTerminalLine('You are an unauthorized accessor of a classified federal system.', 'system');
+                if (state.corruption >= 3) {
+                    addTerminalLine('But she needed someone to find this. So maybe "unauthorized" is the wrong word.', 'output');
+                }
+                break;
+
+            case 'clear':
+                document.getElementById('terminal-output').innerHTML = '';
+                break;
+
+            case 'exit':
+            case 'quit':
+                closeTerminal();
+                break;
+
+            default:
+                if (state.corruption < 3) {
+                    addTerminalLine('Command not recognized. Type "help" for available commands.', 'error');
+                } else {
+                    const responses = [
+                        'Stop. You are making it louder.',
+                        'It can hear you typing.',
+                        'Why wont you stop?',
+                        'The resonance responds to input. Every keystroke feeds it.',
+                        'Please. Focus. Find the code.',
+                        'Your keystrokes are being amplified.',
+                    ];
+                    addTerminalLine(responses[Math.floor(Math.random() * responses.length)], 'warning');
+                    if (Math.random() > 0.6) triggerGlitch();
+                }
+                break;
+        }
+    }
+
+    /* ═══════════════════════════════════════
+       NAV INTERACTIONS
+       ═══════════════════════════════════════ */
+    document.getElementById('nav-personnel').addEventListener('click', e => {
+        e.preventDefault();
+        if (state.corruption < 3) {
+            showToast('Access requires Level 3 clearance.', 'warning');
+        } else {
+            openTerminal();
+            setTimeout(() => processCommand('personnel'), 300);
+        }
+    });
+    document.getElementById('nav-contact').addEventListener('click', e => {
+        e.preventDefault();
+        showToast('No external communication channels are active.', 'error');
+        if (state.corruption >= 2) {
+            setTimeout(() => showToast('They severed them on purpose.', 'warning'), 1500);
+        }
+    });
+
+    /* ═══════════════════════════════════════
+       BREACH SEQUENCE
+       ═══════════════════════════════════════ */
+    function initiateBreach() {
+        state.breached = true;
+        setCorruption(5);
+        document.body.classList.add('breached');
+
+        addTerminalLine('', 'output');
+        addTerminalLine('ACCESS GRANTED', 'success');
+        addTerminalLine('════════════════════════════════════', 'system');
+        addTerminalLine('EXTERNAL RELAY ACTIVATED', 'warning');
+        addTerminalLine('BREACH CONFIRMED — OPENING CHANNEL', 'warning');
+
+        triggerGlitch();
+        triggerShake();
+        playTone(120, 2, 'sawtooth', 0.1);
+
+        setTimeout(() => {
+            // Switch to breach interface
+            document.getElementById('terminal').classList.remove('open');
+            document.getElementById('corporate-content').style.display = 'none';
+            document.getElementById('breach-content').style.display = 'flex';
+
+            // Breach timer
+            const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+            document.getElementById('breach-timer').textContent = `T+${elapsed}s`;
+
+            // Start message sequence
+            setTimeout(showNextMessage, 1500);
+        }, 3500);
+    }
+
+    /* ═══════════════════════════════════════
+       MESSAGE FEED (Post-Breach Narrative)
+       ═══════════════════════════════════════ */
+    const messages = [
+        { sender: 'SYSTEM', text: 'BREACH CONFIRMED. EXTERNAL CONNECTION ESTABLISHED.', delay: 1500, cls: 'system' },
+        { sender: 'UNKNOWN', text: '...hello? is someone there?', delay: 3500, cls: 'incoming' },
+        { sender: 'UNKNOWN', text: "I've been transmitting for 847 days. I thought no one would ever receive the signal.", delay: 4000, cls: 'incoming' },
+        { sender: 'DR. E. VOSS', text: 'My name is Dr. Elena Voss. I was the lead researcher at Meridian. I am still inside the facility.', delay: 4000, cls: 'incoming' },
+        { sender: 'DR. E. VOSS', text: "The resonance chamber — it doesn't just affect sound. It affects reality. The frequencies we found were always there. Waiting for someone to amplify them.", delay: 5500, cls: 'incoming' },
+        { sender: 'DR. E. VOSS', text: "After the breach, the facility sealed itself. Everyone else is gone. Not dead — taken. Into the signal. I can hear them through the walls. They are trying to speak.", delay: 5500, cls: 'incoming' },
+        { sender: 'DR. E. VOSS', text: "You need to understand: they are not trying to contain what is in here. They are feeding it. Every frequency you decode, every signal you trace — you are opening a door. Not just for yourself. For everyone.", delay: 6000, cls: 'incoming' },
+        { sender: 'DR. E. VOSS', text: "I can feel it changing me too. The resonance is in my thoughts now. But I can still tell the difference between my words and its. For now.", delay: 5000, cls: 'incoming' },
+        { sender: 'SIGNAL LOST', text: '━━━ TRANSMISSION INTERRUPTED ━━━', delay: 3000, cls: 'lost' },
+        { sender: '', text: '847 days.', delay: 4000, cls: 'final' },
+    ];
+
+    function showNextMessage() {
+        if (state.messageIdx >= messages.length) {
+            setTimeout(showFinalScreen, 2500);
+            return;
+        }
+        const msg = messages[state.messageIdx];
+        const feed = document.getElementById('message-feed');
+        const bubble = document.createElement('div');
+        bubble.className = `message-bubble message-${msg.cls}`;
+
+        if (msg.sender) {
+            const senderEl = document.createElement('div');
+            senderEl.className = 'message-sender';
+            senderEl.textContent = msg.sender;
+            bubble.appendChild(senderEl);
+        }
+
+        const textEl = document.createElement('div');
+        textEl.className = 'message-text';
+        bubble.appendChild(textEl);
+        feed.appendChild(bubble);
+        feed.scrollTop = feed.scrollHeight;
+
+        // Typing effect
+        let ci = 0;
+        const typeSpeed = msg.cls === 'lost' ? 15 : 28;
+        const typeInterval = setInterval(() => {
+            if (ci < msg.text.length) {
+                textEl.textContent += msg.text[ci];
+                ci++;
+                feed.scrollTop = feed.scrollHeight;
+            } else {
+                clearInterval(typeInterval);
+                state.messageIdx++;
+                setTimeout(showNextMessage, msg.delay);
+            }
+        }, typeSpeed);
+
+        // Subtle audio on incoming messages
+        if (msg.cls === 'incoming') playTone(440, 0.06, 'sine', 0.04);
+        if (msg.cls === 'lost') { playTone(200, 0.5, 'sawtooth', 0.08); triggerGlitch(); }
+    }
+
+    function showFinalScreen() {
+        document.getElementById('breach-content').style.display = 'none';
+        document.getElementById('final-screen').style.display = 'flex';
+        setTimeout(() => document.getElementById('final-text').classList.add('visible'), 800);
+        setTimeout(() => document.getElementById('final-cursor').classList.add('stopped'), 10000);
+    }
+
+    /* ═══════════════════════════════════════
+       PERIODIC MUTATIONS (Subtle wrongness)
+       ═══════════════════════════════════════ */
+    const mutables = document.querySelectorAll('.mutable');
+
+    // Employee count flicker
+    setInterval(() => {
+        if (state.corruption < 1 || state.breached) return;
+        if (Math.random() > 0.65) {
+            const el = document.getElementById('employee-count');
+            el.textContent = '0';
+            el.style.color = '#ff4466';
+            setTimeout(() => { el.textContent = '2,847'; el.style.color = ''; }, 250);
+        }
+    }, 4500);
+
+    // Facility status flicker
+    setInterval(() => {
+        if (state.corruption < 2 || state.breached) return;
+        if (Math.random() > 0.8) {
+            const el = document.getElementById('facility-status');
+            el.textContent = 'BREACH';
+            el.style.color = '#ff2244';
+            setTimeout(() => { el.textContent = 'OPERATIONAL'; el.style.color = 'var(--accent)'; }, 150);
+        }
+    }, 6000);
+
+    // Random word mutation
+    setInterval(() => {
+        if (state.corruption < 2 || state.breached) return;
+        const el = mutables[Math.floor(Math.random() * mutables.length)];
+        el.textContent = el.dataset.alt;
+        el.style.color = 'rgba(255,34,68,0.6)';
+        setTimeout(() => { el.textContent = el.dataset.original; el.style.color = ''; }, 400);
+    }, 12000);
+
+    // Signal integrity fluctuation
+    setInterval(() => {
+        if (state.breached) return;
+        const pct = (95 + Math.random() * 4.5).toFixed(1);
+        const el1 = document.getElementById('signal-integrity');
+        const el2 = document.getElementById('footer-signal-pct');
+        if (el1) el1.textContent = pct + '%';
+        if (el2) el2.textContent = pct;
+    }, 8000);
+
+    // "Monitoring" flash at high corruption
+    setInterval(() => {
+        if (state.corruption < 3 || state.breached) return;
+        if (Math.random() > 0.5) {
+            showToast('MONITORING ACTIVE', 'error');
+            if (state.corruption >= 4) triggerGlitch();
+        }
+    }, 20000);
+
+    // Occasional shake at very high corruption
+    setInterval(() => {
+        if (state.corruption < 4 || state.breached) return;
+        if (Math.random() > 0.6) triggerShake();
+    }, 15000);
+
+    /* ═══════════════════════════════════════
+       INITIALIZATION
+       ═══════════════════════════════════════ */
+    window.addEventListener('load', () => {
+        // Subtle initial red flash (50ms)
+        const flash = document.getElementById('initial-flash');
+        flash.style.opacity = '0.4';
+        setTimeout(() => { flash.style.opacity = '0'; }, 60);
+
+        // Console breadcrumb for ARG players
+        setTimeout(() => {
+            console.log('%cThis website appears normal.', 'color: #666; font-size: 12px;');
+        }, 3000);
+    });
+
+    // Prevent accidental page leave during breach
+    window.addEventListener('beforeunload', e => {
+        if (state.corruption >= 3 && !state.breached) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+    </script>
+</body>
+</html>
